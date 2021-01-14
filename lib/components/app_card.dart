@@ -12,51 +12,72 @@ class AppCard extends StatefulWidget {
 }
 
 class _AppCardState extends State<AppCard> {
-  GooglePlayScraperDart scrapper = GooglePlayScraperDart();
+  final GooglePlayScraperDart scrapper = GooglePlayScraperDart();
+  String _appTitle;
+  String _appPrice;
+  String _appIcon;
+  String _appUrl;
+
+  void _getAppData() {
+    scrapper.app(appID: widget.app.appId, gl: 'us').then((data) => setState(() {
+          _appTitle = data['title'];
+          _appPrice = data['price'];
+          _appIcon = data['icon'];
+          _appUrl = data['url'];
+        }));
+  }
+
+  @override
+  void initState() {
+    _getAppData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: FutureBuilder(
-          future: scrapper.app(appID: widget.app.appId, gl: 'us'),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                Map<String, dynamic> data = snapshot.data;
-                return ListTile(
-                  leading: Image.network('${data["icon"]}'),
-                  title: Text('${data["title"]}'),
-                  subtitle: Row(
-                    children: [
-                      Chip(
-                        label: Text(data['price'] == '0'
-                            ? 'Free'
-                            : r'U$ ' + data['price']),
-                      )
-                    ],
+      child: _appTitle == null
+          ? Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 50),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: ListTile(
+                leading: SizedBox(
+                  width: 50,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network('$_appIcon'),
                   ),
-                  trailing: ActionChip(
-                    onPressed: () => launch(data['url']),
-                    avatar: Icon(
-                      Icons.launch,
-                      color: Colors.white,
-                      size: 20,
+                ),
+                title: Text(_appTitle),
+                subtitle: Row(
+                  children: [
+                    Chip(
+                      label: Text(_appPrice == '0' ? 'Free' : 'US $_appPrice'),
                     ),
-                    label: Text('Open'),
-                    backgroundColor: Theme.of(context).accentColor,
-                    labelStyle: TextStyle(color: Colors.white),
-                  ),
-                );
-              } else
-                return Text('no data found');
-            } else
-              return CircularProgressIndicator();
-          },
-        ),
-      ),
+                    SizedBox(width: 10),
+                    ActionChip(
+                      onPressed: () => launch(_appUrl),
+                      avatar: Icon(
+                        Icons.launch,
+                        color: Colors.white,
+                        size: 15,
+                      ),
+                      label: Text('Open'),
+                      backgroundColor: Theme.of(context).accentColor,
+                      labelStyle: TextStyle(color: Colors.white),
+                      labelPadding: const EdgeInsets.only(right: 5),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
