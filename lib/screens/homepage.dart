@@ -1,7 +1,9 @@
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
+import 'package:app_bundles/screens/app_form.dart';
 import 'package:app_bundles/screens/bundle_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -9,6 +11,26 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  @override
+  void initState() {
+    super.initState();
+    ReceiveSharingIntent.getInitialText().then(
+      (value) {
+        if (value != null && value.isNotEmpty) {
+          if (value.contains('play.google.com') && value.contains('id=')) {
+            String id = value.split('id=')[1];
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AppForm(appId: id),
+              ),
+            );
+          }
+        } else
+          print('Invalid link');
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

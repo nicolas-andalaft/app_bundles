@@ -5,16 +5,19 @@ import 'package:app_bundles/models/bundle.dart';
 
 import 'package:flutter/material.dart';
 
-class BookmarkForm extends StatefulWidget {
+class AppForm extends StatefulWidget {
+  final String appId;
+  const AppForm({this.appId});
+
   @override
-  _BookmarkFormState createState() => _BookmarkFormState();
+  _AppFormState createState() => _AppFormState();
 }
 
-class _BookmarkFormState extends State<BookmarkForm> {
+class _AppFormState extends State<AppForm> {
   final _formKey = GlobalKey<FormState>();
-  final _appLinkController = TextEditingController();
+  final _appIdController = TextEditingController();
   int _bundleIndex = 0;
-  List<Bundle> _bundles = List();
+  List<Bundle> _bundles;
 
   void _getBundleList() {
     BundleDao.readAll().then((data) => setState(() => _bundles = data));
@@ -22,8 +25,9 @@ class _BookmarkFormState extends State<BookmarkForm> {
 
   @override
   void initState() {
-    _getBundleList();
     super.initState();
+    _getBundleList();
+    _appIdController.text = widget.appId;
   }
 
   @override
@@ -36,7 +40,7 @@ class _BookmarkFormState extends State<BookmarkForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              controller: _appLinkController,
+              controller: _appIdController,
               validator: (text) {
                 if (text.isEmpty)
                   return 'Required';
@@ -46,21 +50,29 @@ class _BookmarkFormState extends State<BookmarkForm> {
             ),
             Wrap(
               spacing: 10,
-              children: List.generate(
-                _bundles.length,
-                (index) => ChoiceChip(
-                  label: Text('${_bundles[index].name}'),
-                  selected: _bundleIndex == index,
-                  onSelected: (bool selected) =>
-                      setState(() => _bundleIndex = index),
+              children: [
+                Wrap(
+                  spacing: 10,
+                  children: List.generate(
+                    _bundles != null ? _bundles.length : 0,
+                    (index) => ChoiceChip(
+                      label: Text('${_bundles[index].name}'),
+                      selected: _bundleIndex == index,
+                      onSelected: (bool selected) =>
+                          setState(() => _bundleIndex = index),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            FlatButton(
-              child: Icon(Icons.add),
-              onPressed: () => Navigator.of(context)
-                  .pushNamed('/bundleform')
-                  .whenComplete(() => _getBundleList()),
+                ActionChip(
+                    label: Icon(Icons.refresh),
+                    onPressed: () => _getBundleList()),
+                ActionChip(
+                  label: Icon(Icons.add),
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed('/bundleform')
+                      .whenComplete(() => _getBundleList()),
+                ),
+              ],
             ),
             RaisedButton(
               child: Text('Add'),
@@ -68,7 +80,7 @@ class _BookmarkFormState extends State<BookmarkForm> {
                 if (!_formKey.currentState.validate()) return;
 
                 App newapp = App();
-                newapp.appId = _appLinkController.text;
+                newapp.appId = _appIdController.text;
                 newapp.bundleId = _bundles[_bundleIndex].id;
                 AppDao.create(newapp).then((_) => Navigator.pop(context));
               },

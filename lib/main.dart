@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/home',
       routes: {
         '/home': (context) => Homepage(),
-        '/appform': (context) => BookmarkForm(),
+        '/appform': (context) => AppForm(),
         '/bundleform': (context) => BundleForm(),
       },
     );
