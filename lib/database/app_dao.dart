@@ -7,13 +7,13 @@ class AppDao {
   static const String _tableName = 'appTable';
   static const String _id = 'id';
   static const String _bundleId = 'bundleId';
-  static const String _link = 'link';
+  static const String _appId = 'appId';
 
   static void createTable(Database db, int version) {
     db.execute('CREATE TABLE $_tableName ('
         '$_id INTEGER PRIMARY KEY, '
         '$_bundleId INTEGER, '
-        '$_link TEXT)');
+        '$_appId TEXT)');
   }
 
   static Future<int> create(App app) async {
@@ -48,7 +48,7 @@ class AppDao {
     final Map<String, dynamic> map = Map();
     map[_id] = app.id;
     map[_bundleId] = app.bundleId;
-    map[_link] = app.appLink;
+    map[_appId] = app.appId;
     return map;
   }
 
@@ -58,7 +58,7 @@ class AppDao {
       App newapp = App();
       newapp.id = map[_id];
       newapp.bundleId = map[_bundleId];
-      newapp.appLink = map[_link];
+      newapp.appId = map[_appId];
       apps.add(newapp);
     }
     return apps;

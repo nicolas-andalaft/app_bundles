@@ -1,7 +1,7 @@
 class App {
   int id;
   int bundleId;
-  String appLink;
+  String appId;
 
-  App({this.id, this.bundleId, this.appLink});
+  App({this.id, this.bundleId, this.appId});
 }

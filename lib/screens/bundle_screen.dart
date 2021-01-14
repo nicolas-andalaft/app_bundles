@@ -1,3 +1,4 @@
+import 'package:app_bundles/components/app_card.dart';
 import 'package:app_bundles/database/app_dao.dart';
 import 'package:app_bundles/models/app.dart';
 import 'package:app_bundles/models/bundle.dart';
@@ -20,29 +21,17 @@ class _BundleScreenState extends State<BundleScreen> {
       body: FutureBuilder(
         future: AppDao.readFromBundle(widget.bundle),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(child: CircularProgressIndicator());
-
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               List<App> data = snapshot.data;
               return ListView.builder(
                 itemCount: data.length,
-                itemBuilder: (context, index) => Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 20),
-                    leading: Icon(Icons.android),
-                    title: Text('${data[index].appLink}'),
-                  ),
-                ),
+                itemBuilder: (context, index) => AppCard(data[index]),
               );
             } else
               return Text('No Apps Saved');
           }
-          return Container();
+          return Center(child: CircularProgressIndicator());
         },
       ),
       floatingActionButton: FloatingActionButton(

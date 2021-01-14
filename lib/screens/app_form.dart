@@ -68,7 +68,7 @@ class _BookmarkFormState extends State<BookmarkForm> {
                 if (!_formKey.currentState.validate()) return;
 
                 App newapp = App();
-                newapp.appLink = _appLinkController.text;
+                newapp.appId = _appLinkController.text;
                 newapp.bundleId = _bundles[_bundleIndex].id;
                 AppDao.create(newapp).then((_) => Navigator.pop(context));
               },
