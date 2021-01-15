@@ -74,6 +74,18 @@ class _AppFormState extends State<AppForm> {
                 ),
               ],
             ),
+            FlatButton(
+              child: Text('Search Installed Apps'),
+              onPressed: () {
+                return Navigator.of(context)
+                    .pushNamed('/appform/appsearch')
+                    .then(
+                  (value) {
+                    setState(() => _appIdController.text = value);
+                  },
+                );
+              },
+            ),
             RaisedButton(
               child: Text('Add'),
               onPressed: () {
