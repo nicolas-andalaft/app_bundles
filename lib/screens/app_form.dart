@@ -1,9 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:google_play_store_scraper_dart/google_play_store_scraper_dart.dart';
+import 'package:app_bundles/services/google_play_store_scraper_dart_extension.dart';
 import 'package:app_bundles/database/app_dao.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
-import 'package:app_bundles/models/app.dart';
 import 'package:app_bundles/models/bundle.dart';
-
-import 'package:flutter/material.dart';
 
 class AppForm extends StatefulWidget {
   final String appId;
@@ -14,6 +14,7 @@ class AppForm extends StatefulWidget {
 }
 
 class _AppFormState extends State<AppForm> {
+  final GooglePlayScraperDart _scraper = GooglePlayScraperDart();
   final _formKey = GlobalKey<FormState>();
   final _appIdController = TextEditingController();
   int _bundleIndex = 0;
@@ -91,10 +92,20 @@ class _AppFormState extends State<AppForm> {
               onPressed: () {
                 if (!_formKey.currentState.validate()) return;
 
-                App newapp = App();
-                newapp.appId = _appIdController.text;
-                newapp.bundleId = _bundles[_bundleIndex].id;
-                AppDao.create(newapp).then((_) => Navigator.pop(context));
+                _scraper.loadApp(appID: _appIdController.text, gl: 'us').then(
+                  (app) {
+                    app.bundleId = _bundles[_bundleIndex].id;
+                    return AppDao.create(app).then(
+                      (data) {
+                        Navigator.of(context).pop(data);
+                      },
+                    );
+                  },
+                ).catchError(
+                  (error) {
+                    print('$error');
+                  },
+                );
               },
             ),
           ],

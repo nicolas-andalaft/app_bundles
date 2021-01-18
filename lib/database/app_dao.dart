@@ -8,12 +8,18 @@ class AppDao {
   static const String _id = 'id';
   static const String _bundleId = 'bundleId';
   static const String _appId = 'appId';
+  static const String _title = 'title';
+  static const String _iconUrl = 'iconUrl';
+  static const String _storeUrl = 'storeUrl';
 
   static void createTable(Database db, int version) {
     db.execute('CREATE TABLE $_tableName ('
         '$_id INTEGER PRIMARY KEY, '
         '$_bundleId INTEGER, '
-        '$_appId TEXT)');
+        '$_appId TEXT, '
+        '$_title TEXT, '
+        '$_iconUrl TEXT, '
+        '$_storeUrl TEXT)');
   }
 
   static Future<int> create(App app) async {
@@ -49,16 +55,23 @@ class AppDao {
     map[_id] = app.id;
     map[_bundleId] = app.bundleId;
     map[_appId] = app.appId;
+    map[_title] = app.title;
+    map[_iconUrl] = app.iconUrl;
+    map[_storeUrl] = app.storeUrl;
     return map;
   }
 
   static List<App> _toList(List<Map<String, dynamic>> maps) {
     final List<App> apps = List();
     for (Map<String, dynamic> map in maps) {
-      App newapp = App();
-      newapp.id = map[_id];
-      newapp.bundleId = map[_bundleId];
-      newapp.appId = map[_appId];
+      App newapp = App(
+        id: map[_id],
+        bundleId: map[_bundleId],
+        appId: map[_appId],
+        title: map[_title],
+        iconUrl: map[_iconUrl],
+        storeUrl: map[_storeUrl],
+      );
       apps.add(newapp);
     }
     return apps;
