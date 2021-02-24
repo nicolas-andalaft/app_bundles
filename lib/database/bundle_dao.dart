@@ -1,16 +1,19 @@
 import 'package:app_bundles/database/app_database.dart';
 import 'package:app_bundles/models/bundle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BundleDao {
   static const String _tableName = 'bundleTable';
   static const String _id = 'id';
   static const String _name = 'name';
+  static const String _iconCode = 'iconCode';
 
   static void createTable(Database db, int version) {
     db.execute('CREATE TABLE $_tableName ('
         '$_id INTEGER PRIMARY KEY, '
-        '$_name TEXT)');
+        '$_name TEXT, '
+        '$_iconCode Integer)');
   }
 
   static Future<int> create(Bundle bundle) async {
@@ -38,6 +41,7 @@ class BundleDao {
     final Map<String, dynamic> map = Map();
     map[_id] = bundle.id;
     map[_name] = bundle.name;
+    map[_iconCode] = bundle.icon.codePoint;
     return map;
   }
 
@@ -47,6 +51,9 @@ class BundleDao {
       Bundle newbundle = Bundle();
       newbundle.id = map[_id];
       newbundle.name = map[_name];
+      newbundle.icon = IconData(map[_iconCode],
+          fontFamily: 'outline_material_icons',
+          fontPackage: 'outline_material_icons');
       bundles.add(newbundle);
     }
     return bundles;
