@@ -2,9 +2,9 @@ import 'package:app_bundles/components/bundle_card.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
 import 'package:app_bundles/models/route_names.dart';
-import 'package:app_bundles/screens/app_form.dart';
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -12,24 +12,25 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  void _checkSharedLink() async {
+    String link = await ReceiveSharingIntent.getInitialText();
+
+    // Check if string exists
+    if (link != null && link.isNotEmpty) {
+      if (link.contains('play.google.com') && link.contains('id=')) {
+        // Valid link
+        String id = link.split('id=')[1];
+        Navigator.of(context).pushNamed(RouteNames.appForm, arguments: id);
+      } else
+        // Invalid link
+        Fluttertoast.showToast(msg: 'Invalid App Link');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    ReceiveSharingIntent.getInitialText().then(
-      (value) {
-        if (value != null && value.isNotEmpty) {
-          if (value.contains('play.google.com') && value.contains('id=')) {
-            String id = value.split('id=')[1];
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AppForm(appId: id),
-              ),
-            );
-          }
-        } else
-          print('Invalid link');
-      },
-    );
+    _checkSharedLink();
   }
 
   @override
@@ -54,7 +55,7 @@ class _HomepageState extends State<Homepage> {
                 },
               );
             } else
-              return Text('No Bundle Created');
+              return Center(child: Text('No Bundle Created'));
           }
           return Container();
         },

@@ -7,9 +7,6 @@ import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
 
 class AppForm extends StatefulWidget {
-  final String appId;
-  const AppForm({this.appId});
-
   @override
   _AppFormState createState() => _AppFormState();
 }
@@ -25,15 +22,21 @@ class _AppFormState extends State<AppForm> {
     BundleDao.readAll().then((data) => setState(() => _bundles = data));
   }
 
+  void _getSharedLink() async {
+    if (_appIdController.text.isEmpty)
+      _appIdController.text = ModalRoute.of(context).settings.arguments;
+  }
+
   @override
   void initState() {
     super.initState();
     _getBundleList();
-    _appIdController.text = widget.appId;
   }
 
   @override
   Widget build(BuildContext context) {
+    _getSharedLink();
+
     return Scaffold(
       appBar: AppBar(title: Text('New App')),
       body: Form(
