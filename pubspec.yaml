@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.0
+  flutter_iconpicker: ^2.2.3
   google_play_store_scraper_dart: ^0.0.3
   installed_apps: ^1.1.1
   path: ^1.7.0
