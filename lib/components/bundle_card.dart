@@ -1,5 +1,5 @@
 import 'package:app_bundles/models/bundle.dart';
-import 'package:app_bundles/screens/bundle_screen.dart';
+import 'package:app_bundles/models/route_names.dart';
 import 'package:flutter/material.dart';
 
 class BundleCard extends StatelessWidget {
@@ -36,18 +36,16 @@ class BundleCard extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(Icons.edit),
                   onPressed: () =>
-                      Navigator.of(context).pushNamed('/bundleform'),
+                      Navigator.of(context).pushNamed(RouteNames.bundleForm),
                 ),
               ),
             ],
           ),
         ),
       ),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BundleScreen(bundle),
-        ),
+      onTap: () => Navigator.of(context).pushNamed(
+        RouteNames.bundleApps,
+        arguments: bundle,
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:app_bundles/models/route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:google_play_store_scraper_dart/google_play_store_scraper_dart.dart';
 import 'package:app_bundles/services/google_play_store_scraper_dart_extension.dart';
@@ -70,7 +71,7 @@ class _AppFormState extends State<AppForm> {
                 ActionChip(
                   label: Icon(Icons.add),
                   onPressed: () => Navigator.of(context)
-                      .pushNamed('/bundleform')
+                      .pushNamed(RouteNames.appList)
                       .whenComplete(() => _getBundleList()),
                 ),
               ],
@@ -78,9 +79,7 @@ class _AppFormState extends State<AppForm> {
             FlatButton(
               child: Text('Search Installed Apps'),
               onPressed: () {
-                return Navigator.of(context)
-                    .pushNamed('/appform/appsearch')
-                    .then(
+                return Navigator.of(context).pushNamed(RouteNames.appList).then(
                   (value) {
                     setState(() => _appIdController.text = value);
                   },

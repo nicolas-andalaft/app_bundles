@@ -1,6 +1,7 @@
 import 'package:app_bundles/components/bundle_card.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
+import 'package:app_bundles/models/route_names.dart';
 import 'package:app_bundles/screens/app_form.dart';
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -61,7 +62,7 @@ class _HomepageState extends State<Homepage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => Navigator.of(context)
-            .pushNamed('/appform')
+            .pushNamed(RouteNames.appForm)
             .whenComplete(() => setState(() {})),
       ),
     );

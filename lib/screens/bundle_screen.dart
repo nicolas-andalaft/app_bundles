@@ -1,3 +1,4 @@
+import 'package:app_bundles/models/route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bundles/components/app_card.dart';
 import 'package:app_bundles/database/app_dao.dart';
@@ -5,9 +6,6 @@ import 'package:app_bundles/models/app.dart';
 import 'package:app_bundles/models/bundle.dart';
 
 class BundleScreen extends StatefulWidget {
-  final Bundle bundle;
-  BundleScreen(this.bundle);
-
   @override
   _BundleScreenState createState() => _BundleScreenState();
 }
@@ -15,10 +13,12 @@ class BundleScreen extends StatefulWidget {
 class _BundleScreenState extends State<BundleScreen> {
   @override
   Widget build(BuildContext context) {
+    final Bundle _bundle = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.bundle.name}')),
+      appBar: AppBar(title: Text('${_bundle.name}')),
       body: FutureBuilder<List<App>>(
-        future: AppDao.readFromBundle(widget.bundle),
+        future: AppDao.readFromBundle(_bundle),
         builder: (_, snapshot) {
           if (snapshot.connectionState == ConnectionState.done)
             return ListView.builder(
@@ -32,7 +32,7 @@ class _BundleScreenState extends State<BundleScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => Navigator.of(context)
-            .pushNamed('/appform')
+            .pushNamed(RouteNames.appForm)
             .then((data) => data != null ? setState(() {}) : null),
       ),
     );
