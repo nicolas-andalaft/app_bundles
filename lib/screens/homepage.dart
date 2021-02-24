@@ -1,7 +1,7 @@
+import 'package:app_bundles/components/bundle_card.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
 import 'package:app_bundles/screens/app_form.dart';
-import 'package:app_bundles/screens/bundle_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -49,22 +49,7 @@ class _HomepageState extends State<Homepage> {
               return ListView.builder(
                 itemCount: data.length,
                 itemBuilder: (context, index) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 10),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 20),
-                      leading: Icon(Icons.folder_open),
-                      title: Text('${data[index].name}'),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BundleScreen(data[index]),
-                        ),
-                      ).whenComplete(() => setState(() {})),
-                    ),
-                  );
+                  return BundleCard(data[index]);
                 },
               );
             } else
