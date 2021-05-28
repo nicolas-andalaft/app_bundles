@@ -1,4 +1,4 @@
-import 'package:app_bundles/database/app_database.dart';
+import 'package:app_bundles/database/main_database.dart';
 import 'package:app_bundles/models/bundle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
@@ -17,23 +17,23 @@ class BundleDao {
   }
 
   static Future<int> create(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.insert(_tableName, _toMap(bundle));
   }
 
   static Future<int> update(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.update(_tableName, _toMap(bundle),
         where: '$_id=?', whereArgs: [bundle.id]);
   }
 
   static Future<int> delete(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.delete(_tableName, where: '$_id=?', whereArgs: [bundle.id]);
   }
 
   static Future<List<Bundle>> readAll() async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.query(_tableName).then((data) => _toList(data));
   }
 
