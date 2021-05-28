@@ -1,4 +1,4 @@
-import 'package:app_bundles/database/app_database.dart';
+import 'package:app_bundles/database/main_database.dart';
 import 'package:app_bundles/models/app.dart';
 import 'package:app_bundles/models/bundle.dart';
 import 'package:sqflite/sqflite.dart';
@@ -23,31 +23,38 @@ class AppDao {
   }
 
   static Future<int> create(App app) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.insert(_tableName, _toMap(app));
   }
 
   static Future<int> update(App app) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db
         .update(_tableName, _toMap(app), where: '$_id=?', whereArgs: [app.id]);
   }
 
   static Future<int> delete(App app) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.delete(_tableName, where: '$_id=?', whereArgs: [app.id]);
   }
 
   static Future<List<App>> readAll() async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.query(_tableName).then((data) => _toList(data));
   }
 
   static Future<List<App>> readFromBundle(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.query(_tableName,
         where: '$_bundleId=?',
         whereArgs: [bundle.id]).then((data) => _toList(data));
+  }
+
+  static Future<int> countApps(Bundle bundle) async {
+    Database db = await MainDatabase.db;
+    return await db.query(_tableName,
+        where: '$_bundleId=?',
+        whereArgs: [bundle.id]).then((value) => value.length);
   }
 
   static Map<String, dynamic> _toMap(App app) {
@@ -62,7 +69,7 @@ class AppDao {
   }
 
   static List<App> _toList(List<Map<String, dynamic>> maps) {
-    final List<App> apps = List();
+    final List<App> apps = [];
     for (Map<String, dynamic> map in maps) {
       App newapp = App(
         id: map[_id],

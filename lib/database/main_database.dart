@@ -4,12 +4,12 @@ import 'package:sqflite/sqflite.dart';
 import 'bundle_dao.dart';
 import 'app_dao.dart';
 
-class AppDatabase {
+class MainDatabase {
   static const String dbName = 'appBundles.db';
 
-  static Database _db;
+  static Database? _db;
   static Future<Database> get db async {
-    if (_db != null) return _db;
+    if (_db != null) return _db as Database;
 
     String path = join(await getDatabasesPath(), dbName);
     _db = await openDatabase(
@@ -20,6 +20,6 @@ class AppDatabase {
         AppDao.createTable(db, version);
       },
     );
-    return _db;
+    return _db as Database;
   }
 }

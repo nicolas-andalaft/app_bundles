@@ -1,10 +1,13 @@
+import 'package:app_bundles/components/app_card.dart';
+import 'package:app_bundles/components/container_form_field.dart';
+import 'package:app_bundles/models/app.dart';
 import 'package:app_bundles/models/route_names.dart';
+import 'package:app_bundles/services/play_store_scraper.dart';
 import 'package:flutter/material.dart';
-import 'package:google_play_store_scraper_dart/google_play_store_scraper_dart.dart';
-import 'package:app_bundles/services/google_play_store_scraper_dart_extension.dart';
 import 'package:app_bundles/database/app_dao.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
+import 'package:flutter/services.dart';
 
 class AppForm extends StatefulWidget {
   @override
@@ -12,19 +15,40 @@ class AppForm extends StatefulWidget {
 }
 
 class _AppFormState extends State<AppForm> {
-  final GooglePlayScraperDart _scraper = GooglePlayScraperDart();
-  final _formKey = GlobalKey<FormState>();
-  final _appIdController = TextEditingController();
-  int _bundleIndex = 0;
-  List<Bundle> _bundles;
+  var formKey = GlobalKey<FormState>();
+  int? _bundleIndex;
+  List<Bundle>? _bundles;
+  App? app;
 
-  void _getBundleList() {
-    BundleDao.readAll().then((data) => setState(() => _bundles = data));
+  void _validateForm() async {
+    if (formKey.currentState == null || !formKey.currentState!.validate())
+      return;
+
+    final _app = await PlayStoreScraper.getApp(app!.appId!);
+    if (_app == null) return;
+    app = _app;
+    app!.bundleId = _bundles![_bundleIndex!].id;
+
+    AppDao.create(app!).then((result) => Navigator.of(context).pop(result));
   }
 
-  void _getSharedLink() async {
-    if (_appIdController.text.isEmpty)
-      _appIdController.text = ModalRoute.of(context).settings.arguments;
+  void _getBundleList() {
+    BundleDao.readAll().then((bundles) => setState(() => _bundles = bundles));
+  }
+
+  void _navigateToBundleForm(BuildContext context) async {
+    final data = await Navigator.of(context).pushNamed(RouteNames.bundleForm);
+    if (data == null) return;
+
+    setState(() => _getBundleList());
+  }
+
+  Future<String?> _getClipBoardData() async {
+    ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data == null || data.text == null) return null;
+
+    final _app = await PlayStoreScraper.getApp(data.text!);
+    if (_app != null) setState(() => app = _app);
   }
 
   @override
@@ -35,80 +59,111 @@ class _AppFormState extends State<AppForm> {
 
   @override
   Widget build(BuildContext context) {
-    _getSharedLink();
-
     return Scaffold(
-      appBar: AppBar(title: Text('New App')),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(30),
           children: [
-            TextFormField(
-              controller: _appIdController,
-              validator: (text) {
-                if (text.isEmpty)
-                  return 'Required';
-                else
-                  return null;
-              },
+            Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                'Add new app',
+                style: Theme.of(context).textTheme.headline1,
+              ),
             ),
-            Wrap(
-              spacing: 10,
-              children: [
-                Wrap(
-                  spacing: 10,
-                  children: List.generate(
-                    _bundles != null ? _bundles.length : 0,
-                    (index) => ChoiceChip(
-                      label: Text('${_bundles[index].name}'),
-                      selected: _bundleIndex == index,
-                      onSelected: (bool selected) =>
-                          setState(() => _bundleIndex = index),
+            SizedBox(height: 20),
+            Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  ContainerFormField(
+                    child: AppCard(
+                      app: app,
+                      iconSize: 90,
+                      labelSize: 150,
                     ),
+                    labelText: 'App:',
+                    isCentered: true,
+                    validator: () => app == null ? 'Required' : null,
                   ),
-                ),
-                ActionChip(
-                    label: Icon(Icons.refresh),
-                    onPressed: () => _getBundleList()),
-                ActionChip(
-                  label: Icon(Icons.add),
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(RouteNames.appList)
-                      .whenComplete(() => _getBundleList()),
-                ),
-              ],
-            ),
-            FlatButton(
-              child: Text('Search Installed Apps'),
-              onPressed: () {
-                return Navigator.of(context).pushNamed(RouteNames.appList).then(
-                  (value) {
-                    setState(() => _appIdController.text = value);
-                  },
-                );
-              },
-            ),
-            RaisedButton(
-              child: Text('Add'),
-              onPressed: () {
-                if (!_formKey.currentState.validate()) return;
+                  SizedBox(height: 10),
+                  if (_bundles != null)
+                    Builder(builder: (context) {
+                      return DropdownButtonFormField<int>(
+                        value: _bundleIndex,
+                        decoration: InputDecoration(labelText: 'Bundle:'),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        onChanged: (value) {
+                          if (value == -1) {
+                            _navigateToBundleForm(context);
 
-                _scraper.loadApp(appID: _appIdController.text, gl: 'us').then(
-                  (app) {
-                    app.bundleId = _bundles[_bundleIndex].id;
-                    return AppDao.create(app).then(
-                      (data) {
-                        Navigator.of(context).pop(data);
-                      },
-                    );
-                  },
-                ).catchError(
-                  (error) {
-                    print('$error');
-                  },
-                );
-              },
+                            return;
+                          }
+                          setState(() => _bundleIndex = value!);
+                        },
+                        items: List.generate(
+                            _bundles!.length,
+                            (index) => DropdownMenuItem<int>(
+                                  child: Text(
+                                    _bundles![index].name!,
+                                  ),
+                                  value: index,
+                                )),
+                        validator: (value) => value == null ? 'Required' : null,
+                      );
+                    }),
+                ],
+              ),
+            ),
+            TextButton(
+              child: Text(
+                'Add new bundle',
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(RouteNames.bundleForm).then(
+                (value) {
+                  if (value == null) return;
+                  setState(() => _getBundleList());
+                  _validateForm();
+                },
+              ),
+            ),
+            SizedBox(height: 20),
+            OutlinedButton.icon(
+              icon: Icon(Icons.phone_android),
+              label: Text('Use device app'),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(RouteNames.appList).then(
+                        (value) => value != null
+                            ? setState(() => app = value as App)
+                            : null,
+                      ),
+            ),
+            SizedBox(height: 10),
+            OutlinedButton.icon(
+              icon: Icon(Icons.assignment),
+              label: Text('Paste PlayStore link'),
+              onPressed: _getClipBoardData,
+            ),
+          ],
+        ),
+      ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+            Expanded(
+              child: ElevatedButton(
+                child: Text('Add'),
+                onPressed: _validateForm,
+              ),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'package:app_bundles/database/app_database.dart';
+import 'package:app_bundles/database/main_database.dart';
 import 'package:app_bundles/models/bundle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
@@ -17,23 +17,23 @@ class BundleDao {
   }
 
   static Future<int> create(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.insert(_tableName, _toMap(bundle));
   }
 
   static Future<int> update(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.update(_tableName, _toMap(bundle),
         where: '$_id=?', whereArgs: [bundle.id]);
   }
 
   static Future<int> delete(Bundle bundle) async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.delete(_tableName, where: '$_id=?', whereArgs: [bundle.id]);
   }
 
   static Future<List<Bundle>> readAll() async {
-    Database db = await AppDatabase.db;
+    Database db = await MainDatabase.db;
     return await db.query(_tableName).then((data) => _toList(data));
   }
 
@@ -41,19 +41,20 @@ class BundleDao {
     final Map<String, dynamic> map = Map();
     map[_id] = bundle.id;
     map[_name] = bundle.name;
-    map[_iconCode] = bundle.icon.codePoint;
+    map[_iconCode] = bundle.icon!.codePoint;
     return map;
   }
 
   static List<Bundle> _toList(List<Map<String, dynamic>> maps) {
-    final List<Bundle> bundles = List();
+    final List<Bundle> bundles = [];
     for (Map<String, dynamic> map in maps) {
-      Bundle newbundle = Bundle();
-      newbundle.id = map[_id];
-      newbundle.name = map[_name];
-      newbundle.icon = IconData(map[_iconCode],
-          fontFamily: 'outline_material_icons',
-          fontPackage: 'outline_material_icons');
+      Bundle newbundle = Bundle()
+        ..id = map[_id]
+        ..name = map[_name]
+        ..icon = IconData(
+          map[_iconCode],
+          fontFamily: 'MaterialIcons',
+        );
       bundles.add(newbundle);
     }
     return bundles;

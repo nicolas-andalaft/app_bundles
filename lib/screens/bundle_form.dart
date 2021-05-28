@@ -1,7 +1,7 @@
+import 'package:app_bundles/components/container_form_field.dart';
+import 'package:flutter/material.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
 import 'package:app_bundles/models/bundle.dart';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 class BundleForm extends StatefulWidget {
@@ -10,60 +10,101 @@ class BundleForm extends StatefulWidget {
 }
 
 class _BundleFormState extends State<BundleForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  IconData _icon;
+  final formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  IconData? icon;
 
   void _showIconPicker() {
-    FlutterIconPicker.showIconPicker(context,
-            iconPackMode: IconPack.materialOutline)
-        .then((result) {
-      setState(() {
-        if (result != null && result != _icon) _icon = result;
-      });
-    });
+    FlutterIconPicker.showIconPicker(
+      context,
+      iconPackMode: IconPack.material,
+      iconSize: 30,
+    ).then(
+      (result) {
+        if (result == null || result == icon) return;
+        setState(() => icon = result);
+        formKey.currentState?.validate();
+      },
+    );
   }
 
   void _validateForm() {
-    if (!_formKey.currentState.validate() || _icon == null) return;
+    if (formKey.currentState == null || !formKey.currentState!.validate())
+      return;
 
-    Bundle newbundle = Bundle();
-    newbundle.name = _nameController.text;
-    newbundle.icon = _icon;
+    Bundle newbundle = Bundle()
+      ..name = nameController.text
+      ..icon = icon;
 
-    BundleDao.create(newbundle).then((_) => Navigator.pop(context));
+    BundleDao.create(newbundle)
+        .then((result) => Navigator.pop(context, result));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('New Bundle')),
-      body: Form(
-        key: _formKey,
-        child: Column(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(30),
           children: [
-            TextFormField(
-              controller: _nameController,
-              validator: (text) {
-                if (text.isEmpty)
-                  return 'Required';
-                else
-                  return null;
-              },
+            Text(
+              'Create new Bundle',
+              style: Theme.of(context).textTheme.headline1,
             ),
-            RaisedButton(
-              child: Row(
+            SizedBox(height: 40),
+            Form(
+              key: formKey,
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _icon != null ? Icon(_icon) : Container(),
-                  Text('Choose an Icon'),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Name:'),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                  ),
+                  SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Choose an icon:',
+                      style: Theme.of(context).textTheme.overline,
+                    ),
+                  ),
+                  IconButton(
+                    icon: icon != null
+                        ? Icon(icon)
+                        : Icon(
+                            Icons.add,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                    iconSize: 80,
+                    onPressed: _showIconPicker,
+                  ),
+                  ContainerFormField(
+                    validator: () => icon == null ? 'Required' : null,
+                  ),
                 ],
               ),
-              onPressed: _showIconPicker,
             ),
-            RaisedButton(
-              child: Text('Add'),
-              onPressed: _validateForm,
+          ],
+        ),
+      ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+            Expanded(
+              child: ElevatedButton(
+                child: Text('Create'),
+                onPressed: _validateForm,
+              ),
             ),
           ],
         ),
