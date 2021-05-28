@@ -1,51 +1,97 @@
 import 'package:app_bundles/models/bundle.dart';
-import 'package:app_bundles/models/route_names.dart';
+import 'package:app_bundles/screens/bundle_screen.dart';
 import 'package:flutter/material.dart';
 
 class BundleCard extends StatelessWidget {
+  final double _height = 150;
   final Bundle bundle;
   BundleCard(this.bundle);
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Card(
-        elevation: 0,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Icon(
-                bundle.icon,
-                size: 50,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    bundle.name,
-                    style: Theme.of(context).textTheme.headline4,
+  Widget _background(BuildContext context) {
+    final cardColor = Theme.of(context).accentColor;
+    return ShaderMask(
+      blendMode: BlendMode.srcOver,
+      shaderCallback: (rect) {
+        return LinearGradient(
+          colors: [
+            cardColor,
+            cardColor.withAlpha(0),
+          ],
+          stops: [0.3, 0.8],
+        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+      },
+      child: Container(
+        height: _height,
+        width: double.infinity,
+        color: cardColor,
+        child: Image.asset(
+          'assets/background_pattern.png',
+          fit: BoxFit.cover,
+          color: Colors.white10,
+          colorBlendMode: BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+
+  Widget _label(BuildContext context, {Function()? onTap}) {
+    return SizedBox(
+      height: _height,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, right: 10),
+            child: Row(
+              children: [
+                Icon(
+                  bundle.icon,
+                  size: 40,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      bundle.name!,
+                      style: Theme.of(context).textTheme.headline2,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 100),
-                child: IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(RouteNames.bundleForm),
+                Icon(
+                  Icons.chevron_right,
+                  size: 35,
+                  color: Colors.white,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      onTap: () => Navigator.of(context).pushNamed(
-        RouteNames.bundleApps,
-        arguments: bundle,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          _background(context),
+          _label(
+            context,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BundleScreen(bundle),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

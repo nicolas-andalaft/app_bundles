@@ -41,19 +41,20 @@ class BundleDao {
     final Map<String, dynamic> map = Map();
     map[_id] = bundle.id;
     map[_name] = bundle.name;
-    map[_iconCode] = bundle.icon.codePoint;
+    map[_iconCode] = bundle.icon!.codePoint;
     return map;
   }
 
   static List<Bundle> _toList(List<Map<String, dynamic>> maps) {
-    final List<Bundle> bundles = List();
+    final List<Bundle> bundles = [];
     for (Map<String, dynamic> map in maps) {
-      Bundle newbundle = Bundle();
-      newbundle.id = map[_id];
-      newbundle.name = map[_name];
-      newbundle.icon = IconData(map[_iconCode],
-          fontFamily: 'outline_material_icons',
-          fontPackage: 'outline_material_icons');
+      Bundle newbundle = Bundle()
+        ..id = map[_id]
+        ..name = map[_name]
+        ..icon = IconData(
+          map[_iconCode],
+          fontFamily: 'MaterialIcons',
+        );
       bundles.add(newbundle);
     }
     return bundles;
