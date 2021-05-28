@@ -5,13 +5,21 @@ class PlayStoreScraper {
   static const String authority = 'play.google.com';
   static const String path = 'store/apps/details';
 
-  static Future<App?> getApp(String appId) async {
+  static Future<App?> fromUrl(String url) async {
+    final uri = Uri.parse(url);
+    return await _getApp(uri);
+  }
+
+  static Future<App?> fromAppId(String appId) async {
     final uri = Uri.https(
       authority,
       path,
       {'id': appId},
     );
+    return await _getApp(uri);
+  }
 
+  static Future<App?> _getApp(Uri uri) async {
     final controller = WindowController();
     await controller.openHttp(uri: uri).onError((error, stackTrace) => null);
     if (controller.window == null) return null;

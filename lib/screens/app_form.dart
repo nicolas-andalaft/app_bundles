@@ -15,6 +15,7 @@ class AppForm extends StatefulWidget {
 }
 
 class _AppFormState extends State<AppForm> {
+  bool processedData = false;
   var formKey = GlobalKey<FormState>();
   int? _bundleIndex;
   List<Bundle>? _bundles;
@@ -24,12 +25,26 @@ class _AppFormState extends State<AppForm> {
     if (formKey.currentState == null || !formKey.currentState!.validate())
       return;
 
-    final _app = await PlayStoreScraper.getApp(app!.appId!);
-    if (_app == null) return;
-    app = _app;
-    app!.bundleId = _bundles![_bundleIndex!].id;
+    if (app!.iconUrl == null) {
+      final _app = await PlayStoreScraper.fromAppId(app!.appId!);
+      if (_app == null) return;
+      app = _app;
+      app!.bundleId = _bundles![_bundleIndex!].id;
+    }
 
     AppDao.create(app!).then((result) => Navigator.of(context).pop(result));
+  }
+
+  void _checkSharedData(BuildContext context) async {
+    if (processedData) return;
+    processedData = true;
+
+    final data = ModalRoute.of(context)!.settings.arguments;
+    print('$data');
+    if (data == null) return;
+
+    final _app = await PlayStoreScraper.fromUrl(data as String);
+    setState(() => app = _app);
   }
 
   void _getBundleList() {
@@ -47,7 +62,7 @@ class _AppFormState extends State<AppForm> {
     ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data == null || data.text == null) return null;
 
-    final _app = await PlayStoreScraper.getApp(data.text!);
+    final _app = await PlayStoreScraper.fromAppId(data.text!);
     if (_app != null) setState(() => app = _app);
   }
 
@@ -59,113 +74,121 @@ class _AppFormState extends State<AppForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(30),
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                'Add new app',
-                style: Theme.of(context).textTheme.headline1,
+    _checkSharedData(context);
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pushReplacementNamed(RouteNames.home);
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(30),
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Add new app',
+                  style: Theme.of(context).textTheme.headline1,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  ContainerFormField(
-                    child: AppCard(
-                      app: app,
-                      iconSize: 90,
-                      labelSize: 150,
-                    ),
-                    labelText: 'App:',
-                    isCentered: true,
-                    validator: () => app == null ? 'Required' : null,
-                  ),
-                  SizedBox(height: 10),
-                  if (_bundles != null)
-                    Builder(builder: (context) {
-                      return DropdownButtonFormField<int>(
-                        value: _bundleIndex,
-                        decoration: InputDecoration(labelText: 'Bundle:'),
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onChanged: (value) {
-                          if (value == -1) {
-                            _navigateToBundleForm(context);
-
-                            return;
-                          }
-                          setState(() => _bundleIndex = value!);
-                        },
-                        items: List.generate(
-                            _bundles!.length,
-                            (index) => DropdownMenuItem<int>(
-                                  child: Text(
-                                    _bundles![index].name!,
-                                  ),
-                                  value: index,
-                                )),
-                        validator: (value) => value == null ? 'Required' : null,
-                      );
-                    }),
-                ],
-              ),
-            ),
-            TextButton(
-              child: Text(
-                'Add new bundle',
-                style: Theme.of(context).textTheme.bodyText1,
-              ),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(RouteNames.bundleForm).then(
-                (value) {
-                  if (value == null) return;
-                  setState(() => _getBundleList());
-                  _validateForm();
-                },
-              ),
-            ),
-            SizedBox(height: 20),
-            OutlinedButton.icon(
-              icon: Icon(Icons.phone_android),
-              label: Text('Use device app'),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(RouteNames.appList).then(
-                        (value) => value != null
-                            ? setState(() => app = value as App)
-                            : null,
+              SizedBox(height: 20),
+              Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    ContainerFormField(
+                      child: AppCard(
+                        app: app,
+                        iconSize: 90,
+                        labelSize: 150,
                       ),
-            ),
-            SizedBox(height: 10),
-            OutlinedButton.icon(
-              icon: Icon(Icons.assignment),
-              label: Text('Paste PlayStore link'),
-              onPressed: _getClipBoardData,
-            ),
-          ],
+                      labelText: 'App:',
+                      isCentered: true,
+                      validator: () => app == null ? 'Required' : null,
+                    ),
+                    SizedBox(height: 10),
+                    if (_bundles != null)
+                      Builder(builder: (context) {
+                        return DropdownButtonFormField<int>(
+                          value: _bundleIndex,
+                          decoration: InputDecoration(labelText: 'Bundle:'),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onChanged: (value) {
+                            if (value == -1) {
+                              _navigateToBundleForm(context);
+
+                              return;
+                            }
+                            setState(() => _bundleIndex = value!);
+                          },
+                          items: List.generate(
+                              _bundles!.length,
+                              (index) => DropdownMenuItem<int>(
+                                    child: Text(
+                                      _bundles![index].name!,
+                                    ),
+                                    value: index,
+                                  )),
+                          validator: (value) =>
+                              value == null ? 'Required' : null,
+                        );
+                      }),
+                  ],
+                ),
+              ),
+              TextButton(
+                child: Text(
+                  'Add new bundle',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(RouteNames.bundleForm).then(
+                  (value) {
+                    if (value == null) return;
+                    setState(() => _getBundleList());
+                    _validateForm();
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              OutlinedButton.icon(
+                icon: Icon(Icons.phone_android),
+                label: Text('Use device app'),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(RouteNames.appList).then(
+                          (value) => value != null
+                              ? setState(() => app = value as App)
+                              : null,
+                        ),
+              ),
+              SizedBox(height: 10),
+              OutlinedButton.icon(
+                icon: Icon(Icons.assignment),
+                label: Text('Paste PlayStore link'),
+                onPressed: _getClipBoardData,
+              ),
+            ],
+          ),
         ),
-      ),
-      bottomSheet: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
+        bottomSheet: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                child: Text('Add'),
-                onPressed: _validateForm,
+              Expanded(
+                child: ElevatedButton(
+                  child: Text('Add'),
+                  onPressed: _validateForm,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

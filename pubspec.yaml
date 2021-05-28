@@ -29,6 +29,7 @@ dependencies:
   flutter_iconpicker: ^3.0.1
   flutter_launch_store: ^1.0.0
   path: ^1.8.0
+  receive_sharing_intent: ^1.4.5
   sqflite: ^2.0.0+3
   universal_html: ^2.0.8
   url_launcher: ^6.0.3
