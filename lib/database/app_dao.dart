@@ -27,6 +27,26 @@ class AppDao {
     return await db.insert(_tableName, _toMap(app));
   }
 
+  static Future<dynamic> createAll(List<App> appList) async {
+    if (appList.isEmpty) return;
+
+    Database db = await MainDatabase.db;
+    Batch batch = db.batch();
+
+    for (App app in appList)
+      batch.insert(
+        _tableName,
+        {
+          _appId: app.appId,
+          _bundleId: app.bundleId,
+          _title: app.title,
+          _iconUrl: app.iconUrl,
+        },
+      );
+
+    return await batch.commit();
+  }
+
   static Future<int> update(App app) async {
     Database db = await MainDatabase.db;
     return await db
@@ -57,14 +77,15 @@ class AppDao {
         whereArgs: [bundle.id]).then((value) => value.length);
   }
 
-  static Map<String, dynamic> _toMap(App app) {
-    final Map<String, dynamic> map = Map();
-    map[_id] = app.id;
-    map[_bundleId] = app.bundleId;
-    map[_appId] = app.appId;
-    map[_title] = app.title;
-    map[_iconUrl] = app.iconUrl;
-    map[_storeUrl] = app.storeUrl;
+  static Map<String, Object?> _toMap(App app) {
+    Map<String, Object?> map = {}
+      ..[_id] = app.id
+      ..[_bundleId] = app.bundleId
+      ..[_appId] = app.appId
+      ..[_title] = app.title
+      ..[_iconUrl] = app.iconUrl
+      ..[_storeUrl] = app.storeUrl;
+
     return map;
   }
 
@@ -72,12 +93,12 @@ class AppDao {
     final List<App> apps = [];
     for (Map<String, dynamic> map in maps) {
       App newapp = App(
-        id: map[_id],
-        bundleId: map[_bundleId],
-        appId: map[_appId],
-        title: map[_title],
-        iconUrl: map[_iconUrl],
-        storeUrl: map[_storeUrl],
+        id: map[_id] as int?,
+        bundleId: map[_bundleId] as int?,
+        appId: map[_appId] as String?,
+        title: map[_title] as String?,
+        iconUrl: map[_iconUrl] as String?,
+        storeUrl: map[_storeUrl] as String?,
       );
       apps.add(newapp);
     }

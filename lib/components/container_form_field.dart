@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ContainerFormField extends FormField {
+class ContainerFormField extends FormField<dynamic> {
   final Widget? child;
   final String? labelText;
   final bool isCentered;
@@ -11,7 +11,7 @@ class ContainerFormField extends FormField {
     this.labelText,
     this.isCentered = false,
     String? Function()? validator,
-    autovalidateMode,
+    AutovalidateMode? autovalidateMode,
   }) : super(
           builder: (state) {
             var errorWidget = IntrinsicHeight(
@@ -43,7 +43,7 @@ class ContainerFormField extends FormField {
               ],
             );
           },
-          validator: (_) => validator?.call(),
+          validator: (dynamic data) => validator?.call(),
           autovalidateMode: autovalidateMode,
         );
 }

@@ -1,3 +1,4 @@
+import 'package:app_bundles/components/confirm_bottom_sheet.dart';
 import 'package:app_bundles/components/container_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bundles/database/bundle_dao.dart';
@@ -90,24 +91,11 @@ class _BundleFormState extends State<BundleForm> {
           ],
         ),
       ),
-      bottomSheet: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                child: Text('Create'),
-                onPressed: _validateForm,
-              ),
-            ),
-          ],
-        ),
+      bottomSheet: ConfirmBottomSheet(
+        yesTitle: 'Create',
+        yesFunction: _validateForm,
+        noTitle: 'Cancel',
+        noFunction: () => Navigator.of(context).pop(),
       ),
     );
   }
