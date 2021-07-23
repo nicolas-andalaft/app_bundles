@@ -1,4 +1,4 @@
-package com.example.app_bundles
+package com.andalaft.app_bundles
 
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity

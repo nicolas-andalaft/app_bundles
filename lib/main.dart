@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'App Bundles',
+      onGenerateTitle: (context) => "App Bundles",
       theme: mainTheme(),
       initialRoute: '/home',
       routes: {

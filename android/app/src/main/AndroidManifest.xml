@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.app_bundles">
+    package="com.andalaft.app_bundles">
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
    <application
-        android:label="app_bundles"
-        android:icon="@mipmap/ic_launcher">
+        android:label="App Bundles"
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
