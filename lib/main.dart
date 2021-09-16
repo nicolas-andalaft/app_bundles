@@ -1,11 +1,9 @@
-import 'package:app_bundles/models/route_names.dart';
-import 'package:app_bundles/screens/app_form.dart';
-import 'package:app_bundles/screens/app_list_screen.dart';
-import 'package:app_bundles/screens/bundle_form.dart';
-import 'package:app_bundles/screens/homepage.dart';
-import 'package:app_bundles/utils/main_theme.dart';
-import 'package:app_bundles/utils/shared_intent.dart';
 import 'package:flutter/material.dart';
+
+import './core/utils/shared_intent.dart';
+import './core/utils/route_names.dart';
+import './features/presenter/pages/pages.dart';
+import './features/presenter/utils/main_theme.dart';
 
 void main() {
   runApp(MyApp());

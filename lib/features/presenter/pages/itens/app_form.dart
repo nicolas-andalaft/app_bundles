@@ -1,15 +1,12 @@
-import 'package:app_bundles/components/app_card.dart';
-import 'package:app_bundles/components/confirm_bottom_sheet.dart';
-import 'package:app_bundles/components/container_form_field.dart';
-import 'package:app_bundles/models/app.dart';
-import 'package:app_bundles/models/route_names.dart';
-import 'package:app_bundles/services/play_store_scraper.dart';
-import 'package:app_bundles/utils/loading_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:app_bundles/database/app_dao.dart';
-import 'package:app_bundles/database/bundle_dao.dart';
-import 'package:app_bundles/models/bundle.dart';
 import 'package:flutter/services.dart';
+
+import '../../../../core/utils/route_names.dart';
+import '../../../../core/services/play_store_scraper.dart';
+import '../../../domain/entities/app_entity.dart';
+import '../../../domain/entities/bundle_entity.dart';
+import '../../utils/loading_dialog.dart';
+import '../../widgets/widgets.dart';
 
 class AppForm extends StatefulWidget {
   @override
@@ -20,8 +17,8 @@ class _AppFormState extends State<AppForm> {
   bool processedData = false;
   var formKey = GlobalKey<FormState>();
   int? _bundleIndex;
-  List<Bundle>? _bundles;
-  List<App> appList = [];
+  List<BundleEntity>? _bundles;
+  List<AppEntity> appList = [];
 
   void _validateForm() async {
     if (formKey.currentState == null || !formKey.currentState!.validate())
@@ -30,7 +27,7 @@ class _AppFormState extends State<AppForm> {
     loadingDialog(
         context: context,
         command: () async {
-          for (App app in appList) {
+          for (AppEntity app in appList) {
             // Set bundle id
             app.bundleId = _bundles![_bundleIndex!].id;
 
@@ -43,7 +40,7 @@ class _AppFormState extends State<AppForm> {
             }
           }
 
-          await AppDao.createAll(appList);
+          // await AppDao.createAll(appList);
         }).then(
       (dynamic value) => Navigator.of(context).pop(true),
     );
@@ -61,7 +58,8 @@ class _AppFormState extends State<AppForm> {
   }
 
   void _getBundleList() {
-    BundleDao.readAll().then((bundles) => setState(() => _bundles = bundles));
+    // BundleDao.readAll().then(
+    //     (bundles) => setState(() => _bundles = bundles.cast<BundleEntity>()));
   }
 
   void _navigateToBundleForm(BuildContext context) async {
@@ -176,8 +174,8 @@ class _AppFormState extends State<AppForm> {
                                 .pushNamed(RouteNames.appList)
                                 .then(
                                   (value) => value != null
-                                      ? setState(() =>
-                                          appList.addAll(value as List<App>))
+                                      ? setState(() => appList
+                                          .addAll(value as List<AppEntity>))
                                       : null,
                                 ),
                           ),

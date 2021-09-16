@@ -1,9 +1,10 @@
-import 'package:app_bundles/components/app_icon_image.dart';
-import 'package:app_bundles/models/app.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets.dart' show AppIconImage;
+import '../../../domain/entities/app_entity.dart';
+
 class AppListTitle extends StatefulWidget {
-  final App app;
+  final AppEntity app;
   final Function(bool)? onChanged;
   AppListTitle({required this.app, this.onChanged});
 

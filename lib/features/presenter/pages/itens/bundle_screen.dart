@@ -1,14 +1,14 @@
-import 'package:app_bundles/models/app.dart';
-import 'package:app_bundles/models/route_names.dart';
-import 'package:app_bundles/utils/app_bottom_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:app_bundles/components/app_card.dart';
-import 'package:app_bundles/database/app_dao.dart';
-import 'package:app_bundles/models/bundle.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../../../core/utils/route_names.dart';
+import '../../../domain/entities/app_entity.dart';
+import '../../../domain/entities/bundle_entity.dart';
+import '../../utils/app_bottom_sheet.dart';
+import '../../widgets/widgets.dart';
+
 class BundleScreen extends StatefulWidget {
-  final Bundle bundle;
+  final BundleEntity bundle;
   BundleScreen(this.bundle);
 
   @override
@@ -16,13 +16,13 @@ class BundleScreen extends StatefulWidget {
 }
 
 class _BundleScreenState extends State<BundleScreen> implements TickerProvider {
-  List<App> appList = [];
+  List<AppEntity> appList = [];
   bool compact = true;
 
   void _getAppList() {
-    AppDao.readFromBundle(widget.bundle).then(
-      (value) => setState(() => appList = value),
-    );
+    // AppDao.readFromBundle(widget.bundle).then(
+    //   (value) => setState(() => appList = value as List<AppEntity>),
+    // );
   }
 
   @override

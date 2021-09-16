@@ -1,9 +1,10 @@
-import 'package:app_bundles/models/app.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_launch_store/flutter_launch_store.dart';
 
-showAppBottomSheet(BuildContext context, App app) async {
+import '../../domain/entities/app_entity.dart';
+
+showAppBottomSheet(BuildContext context, AppEntity app) async {
   bool isInstalled = await DeviceApps.isAppInstalled(app.appId!);
 
   showModalBottomSheet(

@@ -1,8 +1,8 @@
-import 'package:app_bundles/components/app_list_title.dart';
-import 'package:app_bundles/components/confirm_bottom_sheet.dart';
-import 'package:app_bundles/models/app.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
+
+import '../../../domain/entities/app_entity.dart';
+import '../../widgets/widgets.dart';
 
 class AppListScreen extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class AppListScreen extends StatefulWidget {
 }
 
 class _AppListScreenState extends State<AppListScreen> {
-  List<App>? appList;
+  List<AppEntity>? appList;
   List<bool>? selectedApps;
 
   @override
@@ -34,7 +34,8 @@ class _AppListScreenState extends State<AppListScreen> {
                 if (!snapshot.hasData)
                   return Center(child: CircularProgressIndicator());
                 appList = snapshot.data!
-                    .map((e) => App.fromApplication(e as ApplicationWithIcon))
+                    .map((e) =>
+                        AppEntity.fromApplication(e as ApplicationWithIcon))
                     .toList();
                 selectedApps = List.filled(appList!.length, false);
                 return Column(
@@ -55,7 +56,7 @@ class _AppListScreenState extends State<AppListScreen> {
       bottomNavigationBar: ConfirmBottomSheet(
         yesTitle: 'Select',
         yesFunction: () {
-          List<App> result = [];
+          List<AppEntity> result = [];
           for (int i = 0; i < appList!.length; i++)
             if (selectedApps![i]) result.add(appList![i]);
 

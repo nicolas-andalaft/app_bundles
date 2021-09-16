@@ -1,10 +1,11 @@
-import 'package:app_bundles/models/bundle.dart';
-import 'package:app_bundles/screens/bundle_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../../../domain/entities/bundle_entity.dart';
+import '../../pages/pages.dart' show BundleScreen;
 
 class BundleCard extends StatelessWidget {
   final double _height = 150;
-  final Bundle bundle;
+  final BundleEntity bundle;
   BundleCard(this.bundle);
 
   Widget _background(BuildContext context) {

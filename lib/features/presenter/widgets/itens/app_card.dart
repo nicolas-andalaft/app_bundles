@@ -1,9 +1,10 @@
-import 'package:app_bundles/components/app_icon_image.dart';
-import 'package:app_bundles/models/app.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets.dart' show AppIconImage;
+import '../../../domain/entities/app_entity.dart';
+
 class AppCard extends StatelessWidget {
-  final App? app;
+  final AppEntity? app;
   final Function()? onTap;
   final double? iconSize;
   final double? labelSize;
