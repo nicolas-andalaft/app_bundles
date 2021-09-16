@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
-class Bundle {
+class BundleEntity {
   int? id;
   String? name;
   IconData? icon;
 
-  Bundle({this.id, this.name, this.icon});
+  BundleEntity({
+    this.id,
+    this.name,
+    this.icon,
+  });
 }
