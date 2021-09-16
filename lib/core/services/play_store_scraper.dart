@@ -1,16 +1,17 @@
-import 'package:app_bundles/models/app.dart';
 import 'package:universal_html/controller.dart';
+
+import '../../features/domain/entities/app_entity.dart';
 
 class PlayStoreScraper {
   static const String authority = 'play.google.com';
   static const String path = 'store/apps/details';
 
-  static Future<App?> fromUrl(String url) async {
+  static Future<AppEntity?> fromUrl(String url) async {
     final uri = Uri.parse(url);
     return await _getApp(uri);
   }
 
-  static Future<App?> fromAppId(String appId) async {
+  static Future<AppEntity?> fromAppId(String appId) async {
     final uri = Uri.https(
       authority,
       path,
@@ -19,7 +20,7 @@ class PlayStoreScraper {
     return await _getApp(uri);
   }
 
-  static Future<App?> _getApp(Uri uri) async {
+  static Future<AppEntity?> _getApp(Uri uri) async {
     final controller = WindowController();
     await controller.openHttp(uri: uri).onError((error, stackTrace) => null);
     if (controller.window == null) return null;
@@ -29,7 +30,7 @@ class PlayStoreScraper {
     final titleElement =
         controller.window!.document.querySelector('h1.AHFaub > span');
 
-    return App(
+    return AppEntity(
       title: titleElement?.innerText,
       iconUrl: imageElement?.attributes['src'],
     );
