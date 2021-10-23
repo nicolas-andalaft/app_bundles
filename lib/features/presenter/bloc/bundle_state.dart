@@ -1,4 +1,4 @@
-import '../../domain/entities/bundle_entity.dart';
+import 'package:app_bundles/features/domain/entities/bundle_entity.dart';
 
 abstract class BundleState {}
 

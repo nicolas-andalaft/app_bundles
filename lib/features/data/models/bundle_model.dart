@@ -13,5 +13,15 @@ class BundleModel extends BundleEntity {
           icon: icon,
         );
 
-  factory BundleModel.fromJson(Map<String, dynamic> json) => BundleModel();
+  factory BundleModel.fromJson(Map<String, dynamic> json) => BundleModel(
+        id: json['id'],
+        name: json['name'],
+        icon: json['iconCode'].runNotNull((e) => IconData(e)),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': this.id,
+        'name': this.name,
+        'iconCode': this.icon?.codePoint,
+      };
 }

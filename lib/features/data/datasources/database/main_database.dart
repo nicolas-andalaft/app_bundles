@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../bundle_datasource_implementation.dart';
+import '../app_datasource_implementation.dart';
 
 class MainDatabase {
   static const String dbName = 'appBundles.db';
@@ -16,7 +17,7 @@ class MainDatabase {
       version: 1,
       onCreate: (db, version) {
         BundleDatasourceImplementation.createTable(db, version);
-        // AppDao.createTable(db, version);
+        AppDatasourceImplementation.createTable(db, version);
       },
     );
     return _db as Database;

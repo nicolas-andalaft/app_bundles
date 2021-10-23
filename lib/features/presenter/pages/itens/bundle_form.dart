@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 import '../../../domain/entities/bundle_entity.dart';
+import '../../bloc/bundle_bloc.dart';
+import '../../bloc/bundle_event.dart';
 import '../../widgets/widgets.dart';
 
 class BundleForm extends StatefulWidget {
@@ -28,16 +30,18 @@ class _BundleFormState extends State<BundleForm> {
     );
   }
 
-  void _validateForm() {
+  void _validateForm(BuildContext context) {
     if (formKey.currentState == null || !formKey.currentState!.validate())
       return;
 
-    BundleEntity newbundle = BundleEntity()
-      ..name = nameController.text
-      ..icon = icon;
+    final bundle = BundleEntity(
+      name: nameController.text,
+      icon: icon,
+    );
 
-    // BundleDao.create(newbundle)
-    //     .then((result) => Navigator.pop(context, result));
+    BundleBloc().add(CreateBundleEvent(bundle));
+
+    Navigator.of(context).pop(0);
   }
 
   @override
@@ -92,7 +96,7 @@ class _BundleFormState extends State<BundleForm> {
       ),
       bottomSheet: ConfirmBottomSheet(
         yesTitle: 'Create',
-        yesFunction: _validateForm,
+        yesFunction: () => _validateForm(context),
         noTitle: 'Cancel',
         noFunction: () => Navigator.of(context).pop(),
       ),

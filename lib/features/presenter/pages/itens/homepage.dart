@@ -1,3 +1,5 @@
+import 'package:app_bundles/features/domain/entities/bundle_entity.dart';
+import 'package:app_bundles/features/presenter/bloc/bundle_event.dart';
 import 'package:app_bundles/features/presenter/bloc/bundle_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +9,8 @@ import '../../bloc/bundle_bloc.dart';
 import '../../widgets/widgets.dart';
 
 class Homepage extends StatelessWidget {
-  const Homepage({Key? key}) : super(key: key);
+  final _bloc = BundleBloc();
+  Homepage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +34,19 @@ class Homepage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () => Navigator.of(context).pushNamed(RouteNames.appForm)
-          // .then((value) => setState(() {
-          //       _getBundles();
-          //     })),
-          ),
+        child: Icon(Icons.add),
+        // onPressed: () => Navigator.of(context).pushNamed(RouteNames.appForm),
+        onPressed: () {
+          _bloc.add(CreateBundleEvent(BundleEntity(name: 'teste')));
+          print(_bloc.stream);
+        },
+      ),
     );
   }
 
   BlocProvider<BundleBloc> buildBody(BuildContext context) {
     return BlocProvider(
-      create: (context) => BundleBloc(),
+      create: (context) => _bloc,
       child: BlocBuilder<BundleBloc, BundleState>(
         builder: (context, state) {
           switch (state.runtimeType) {
